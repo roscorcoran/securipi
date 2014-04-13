@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import RPi.GPIO as GPIO ## Import GPIO library
 import time
 GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
