@@ -3,6 +3,8 @@ import io
 import time
 import base64
 import picamera
+import requests
+import json
 
 camera = picamera.PiCamera()
 
@@ -12,6 +14,7 @@ camera.led = True
 camera.capture('image.jpg')
 camera.led = False
 camera.close()
+print 'Closed Cam'
 
 #my_stream = io.BytesIO()
 #camera.capture(my_stream, 'jpeg')
@@ -40,7 +43,13 @@ camera.close()
 with open('image.jpg', 'r+b') as myIm:
     encoded_string = base64.b64encode(myIm.read())
 
-with open('b64.txt', 'w') as bim:
-	bim.write(encoded_string)
+#with open('b64.txt', 'w') as bim:
+#	bim.write(encoded_string)
+print 'Finished encode'
+url = 'http://192.168.0.12:8080/images'
+payload = {'title': 'tada', 'data': encoded_string}
+headers = {'content-type': 'application/json'}
+print 'making request'
 
-
+r = requests.post(url, data=json.dumps(payload), headers=headers)
+print(r.text)
