@@ -9,6 +9,7 @@ import json
 camera = picamera.PiCamera()
 
 camera.vflip = True
+camera.hflip= True
 camera.led = True
 #camera.start_preview()
 camera.capture('image.jpg')
@@ -46,7 +47,7 @@ with open('image.jpg', 'r+b') as myIm:
 #with open('b64.txt', 'w') as bim:
 #	bim.write(encoded_string)
 print 'Finished encode'
-url = 'http://192.168.0.12:8080/images'
+url = 'http://192.168.0.12:8080/api/images'
 payload = {'title': 'tada', 'data': encoded_string}
 headers = {'content-type': 'application/json'}
 print 'making request'
