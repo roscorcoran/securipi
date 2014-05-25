@@ -5,52 +5,50 @@ import base64
 import picamera
 import requests
 import json
+import RPi.GPIO as GPIO ## Import GPIO library
+PIR=11
 
-camera = picamera.PiCamera()
 
-camera.vflip = True
-camera.hflip= True
-camera.led = True
-#camera.start_preview()
-camera.capture('image.jpg')
-camera.led = False
-camera.close()
-print 'Closed Cam'
+GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
+#GPIO.setup(LED, GPIO.OUT, initial=GPIO.HIGH) ## Setup GPIO Pin 7 to OUT
+#GPIO.output(LED,True) ## Turn on GPIO pin 7
+GPIO.setup(PIR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-#my_stream = io.BytesIO()
-#camera.capture(my_stream, 'jpeg')
-#with open('myIm.jpg', 'w+b') as myIm:
-#    myIm.write(my_stream.flush())
+#Callback
+def pir_callback(channel):
+	print "Rising edge detected on: " + str(PIR) + "\n"
+	with picamera.PiCamera() as camera:
+		camera.vflip = True
+		camera.hflip= True
+		camera.led = True
+		camera.capture('image.jpg')
+		#Camera.led = False
+		camera.close()
+		print 'Closed Cam'
+	
+	with open('image.jpg', 'r+b') as myIm:
+		encoded_string = base64.b64encode(myIm.read())
 
-#camera.hflip = True
-#camera.vflip = True
-#camera.sharpness = 0
-#camera.contrast = 0
-#camera.brightness = 50
-#camera.saturation = 0
-#camera.ISO = 0
-#camera.video_stabilization = False
-#camera.exposure_compensation = 0
-#camera.exposure_mode = 'auto'
-#camera.meter_mode = 'average'
-#camera.awb_mode = 'auto'
-#camera.image_effect = 'none'
-#camera.color_effects = None
-#camera.rotation = 0
-#camera.hflip = False
-#camera.vflip = False
-#camera.crop = (0.0, 0.0, 1.0, 1.0)
+	print 'Finished encode'
+	url = 'http://192.168.0.12:8080/api/images'
+	payload = {'title': 'tada', 'data': encoded_string}
+	headers = {'content-type': 'application/json'}
+	print 'making request'
+	
+	r = requests.post(url, data=json.dumps(payload), headers=headers)
+	print(r.text)
 
-with open('image.jpg', 'r+b') as myIm:
-    encoded_string = base64.b64encode(myIm.read())
+GPIO.add_event_detect(PIR, GPIO.RISING, callback=pir_callback, bouncetime=300)
 
-#with open('b64.txt', 'w') as bim:
-#	bim.write(encoded_string)
-print 'Finished encode'
-url = 'http://192.168.0.12:8080/api/images'
-payload = {'title': 'tada', 'data': encoded_string}
-headers = {'content-type': 'application/json'}
-print 'making request'
+try:
+    print("Wating for {}".format(PIR))
+    #GPIO.wait_for_edge(9, GPIO.RISING)
+    #input("Press Enter to continue...")
+    raw_input("press enter to exit ;)")
 
-r = requests.post(url, data=json.dumps(payload), headers=headers)
-print(r.text)
+
+except KeyboardInterrupt:
+    print("KB")
+    #GPIO.cleanup()       # clean up GPIO on CTRL+C exit  
+GPIO.cleanup()           # clean up GPIO on normal exit  
+
