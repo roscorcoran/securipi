@@ -12,7 +12,7 @@
  
 # Change the next 3 lines to suit where you install your script and what you want to call it
 DIR=/home/ros/securipi
-DAEMON=$DIR/sys.py
+DAEMON=$DIR/system.py
 DAEMON_NAME=securipi
  
 # This next line determines what user the script runs as.

@@ -26,19 +26,19 @@ def pir_callback(channel):
 		camera.close()
 		print 'Closed Cam'
 	
-	with open('image.jpg', 'r+b') as myIm:
-		encoded_string = base64.b64encode(myIm.read())
-
-	print 'Finished encode'
+	files = {'file': open('image.jpg', 'r+b')}
+	#files = {'file': ('image', open('image.jpg', 'r+b'), 'image/JPEG', {'Expires': '0'})}
+	print 'Finished read'
+	#url = 'http://192.168.0.12:8080/api/images'
 	url = 'http://securipi.roscorcoran.com/api/images'
-	payload = {'title': 'tada', 'data': encoded_string}
-	headers = {'content-type': 'application/json'}
+	#payload = {'title': 'tada', 'data': encoded_string}
+	#Headers = {'content-type': 'image/JPEG'}
 	print 'making request'
 	
-	r = requests.post(url, data=json.dumps(payload), headers=headers)
+	r = requests.post(url, files=files)#, headers=headers)
 	print(r.text)
 
-GPIO.add_event_detect(PIR, GPIO.RISING, callback=pir_callback, bouncetime=300)
+GPIO.add_event_detect(PIR, GPIO.RISING, callback=pir_callback, bouncetime=1000)
 
 try:
     print("Wating for {}".format(PIR))
